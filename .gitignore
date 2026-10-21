@@ -1,0 +1,13 @@
+# Xcode / build artifacts
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xcscmblueprint
+.swiftpm/
+
+# Screenshot scratch (regenerated via shot.sh)
+_shots/
+
+# macOS
+.DS_Store
