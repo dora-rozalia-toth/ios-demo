@@ -68,6 +68,16 @@ struct ResourceFile: Identifiable, Hashable {
     var lastModified: String
 }
 
+/// Nested resource-center entry (folder or file). Folders carry children so the
+/// view can drill down and build a breadcrumb path.
+struct ResourceNode: Identifiable {
+    let id = UUID()
+    var name: String
+    var lastModified: String
+    var isFolder: Bool
+    var children: [ResourceNode] = []
+}
+
 struct Approval: Identifiable {
     let id = UUID()
     var title: String
@@ -131,6 +141,35 @@ enum Mock {
         .init(name: "Vendor NDA — GlobalTech", lastModified: "06/01/2026"),
         .init(name: "Board Charter (Amended)", lastModified: "05/28/2026"),
         .init(name: "Quarterly Compliance Report Q2", lastModified: "05/20/2026"),
+    ]
+
+    /// Nested tree used by the Resource center (drill-down + breadcrumb).
+    static let resourceTree: [ResourceNode] = [
+        .init(name: "Contracts and agreements", lastModified: "06/03/2026", isFolder: true, children: [
+            .init(name: "Legal_Team_Feedback", lastModified: "06/03/2026", isFolder: true, children: [
+                .init(name: "Master Services Agreement 2026", lastModified: "06/03/2026", isFolder: false),
+                .init(name: "Vendor NDA — GlobalTech", lastModified: "06/01/2026", isFolder: false),
+                .init(name: "Redline_v3", lastModified: "05/30/2026", isFolder: false),
+            ]),
+            .init(name: "Q1 Contracts", lastModified: "06/03/2026", isFolder: true, children: [
+                .init(name: "Supplier Agreement — Acme", lastModified: "05/22/2026", isFolder: false),
+                .init(name: "Renewal Terms 2026", lastModified: "05/18/2026", isFolder: false),
+            ]),
+            .init(name: "Stakeholder_Comments", lastModified: "06/03/2026", isFolder: false),
+            .init(name: "Executive_Summary_Review", lastModified: "06/03/2026", isFolder: false),
+            .init(name: "Initial_Review_Notes", lastModified: "06/03/2026", isFolder: false),
+        ]),
+        .init(name: "Board MeetingCalls", lastModified: "06/03/2026", isFolder: true, children: [
+            .init(name: "Q2 Board Minutes", lastModified: "06/01/2026", isFolder: false),
+            .init(name: "Agenda — June", lastModified: "05/29/2026", isFolder: false),
+            .init(name: "Recordings", lastModified: "05/15/2026", isFolder: true, children: [
+                .init(name: "April Session.mp4", lastModified: "04/30/2026", isFolder: false),
+            ]),
+        ]),
+        .init(name: "Legal", lastModified: "06/03/2026", isFolder: true, children: [
+            .init(name: "Board Charter (Amended)", lastModified: "05/28/2026", isFolder: false),
+            .init(name: "Quarterly Compliance Report Q2", lastModified: "05/20/2026", isFolder: false),
+        ]),
     ]
 
     static let approvals: [Approval] = [
