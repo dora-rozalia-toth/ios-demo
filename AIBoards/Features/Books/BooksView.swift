@@ -33,6 +33,12 @@ struct BooksView: View {
                 onOpen: { model.openBook = $0 },
                 onMenu: { model.present(.meetingDetails($0)) }
             )
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            // Bleed the card off the bottom edge: cancel the shell's bottom
+            // inset and run through the safe area so the end of the list sits
+            // below the fold until the user scrolls to it.
+            .padding(.bottom, -DS.Space.md)
+            .ignoresSafeArea(.container, edges: .bottom)
         }
     }
 
@@ -67,6 +73,12 @@ struct BookTable: View {
     private let committeeW: CGFloat = 200
     private let menuW: CGFloat = 44
 
+    // Only the top corners are rounded — the card bleeds off the bottom of the
+    // screen so the end of the list is reached by scrolling, not shown at rest.
+    private var topRounded: UnevenRoundedRectangle {
+        UnevenRoundedRectangle(topLeadingRadius: DS.Radius.lg16, topTrailingRadius: DS.Radius.lg16)
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             header
@@ -79,9 +91,9 @@ struct BookTable: View {
             }
             .scrollIndicators(.hidden)
         }
-        .background(DS.ColorToken.background, in: RoundedRectangle(cornerRadius: DS.Radius.lg16))
-        .clipShape(RoundedRectangle(cornerRadius: DS.Radius.lg16))
-        .overlay(RoundedRectangle(cornerRadius: DS.Radius.lg16).stroke(DS.ColorToken.border, lineWidth: 1))
+        .background(DS.ColorToken.background, in: topRounded)
+        .clipShape(topRounded)
+        .overlay(topRounded.stroke(DS.ColorToken.border, lineWidth: 1))
     }
 
     private var header: some View {
