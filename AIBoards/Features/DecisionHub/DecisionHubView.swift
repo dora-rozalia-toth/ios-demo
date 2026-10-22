@@ -42,14 +42,6 @@ private struct ApprovalCard: View {
             }
         }
         .background(DS.ColorToken.background, in: RoundedRectangle(cornerRadius: DS.Radius.lg))
-        // Awaiting-response cards get a blue selection indicator on the left edge.
-        .overlay(alignment: .leading) {
-            if approval.needsResponse {
-                Capsule().fill(DS.ColorToken.primaryStrong)
-                    .frame(width: 3)
-                    .padding(.vertical, DS.Space.sm)
-            }
-        }
     }
 
     private var row: some View {

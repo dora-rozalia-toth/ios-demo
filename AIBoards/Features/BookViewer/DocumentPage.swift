@@ -88,6 +88,9 @@ struct DocumentPage: View {
     @State private var currentPage = pageArgs.contains("-pageNum") || pageArgs.contains("-pageEntry") ? 3 : 1
     @State private var showPill = pageArgs.contains("-pageNum") || pageArgs.contains("-pageEntry")
     @State private var showEntry = pageArgs.contains("-pageEntry")
+    @State private var pillHideWork: DispatchWorkItem?
+    // Demo captures (-pageNum / -pageEntry) pin the pill visible for screenshots.
+    private static let pillPinned = pageArgs.contains("-pageNum") || pageArgs.contains("-pageEntry")
     private struct ScrollInfo: Equatable { var offset: CGFloat; var maxOffset: CGFloat }
     private var totalPages: Int { max(1, book.pageCount) }
 
@@ -100,6 +103,25 @@ struct DocumentPage: View {
             Mark(tool: .pen, color: solidPalette[0], width: penWidths[1],
                  points: (0..<24).map { CGPoint(x: 120 + Double($0) * 14, y: 430 + sin(Double($0) / 2) * 16) }),
         ]
+    }
+
+    /// Show the page pill while the reader is actively scrolling, then fade it
+    /// back out shortly after scrolling stops — so it never sits statically on
+    /// the page. Staying near the top keeps it hidden.
+    private func revealPillWhileScrolling(atTop: Bool) {
+        guard !Self.pillPinned else { return }   // pinned for demo screenshots
+        pillHideWork?.cancel()
+        if atTop {
+            withAnimation(.easeOut(duration: 0.2)) { showPill = false }
+            return
+        }
+        withAnimation(.easeOut(duration: 0.15)) { showPill = true }
+        guard !showEntry else { return }         // keep visible while the entry popover is open
+        let work = DispatchWorkItem {
+            withAnimation(.easeOut(duration: 0.3)) { showPill = false }
+        }
+        pillHideWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5, execute: work)
     }
 
     // MARK: Body
@@ -138,7 +160,7 @@ struct DocumentPage: View {
             } action: { _, info in
                 let progress = min(1, max(0, info.offset / info.maxOffset))
                 currentPage = min(totalPages, max(1, Int(progress * Double(totalPages - 1)) + 1))
-                withAnimation(.easeOut(duration: 0.15)) { showPill = info.offset > 24 }
+                revealPillWhileScrolling(atTop: info.offset <= 24)
             }
 
             if composer.mode != .placing {
