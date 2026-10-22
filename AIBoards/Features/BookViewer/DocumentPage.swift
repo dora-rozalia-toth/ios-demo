@@ -89,6 +89,8 @@ struct DocumentPage: View {
     @State private var showPill = pageArgs.contains("-pageNum") || pageArgs.contains("-pageEntry")
     @State private var showEntry = pageArgs.contains("-pageEntry")
     @State private var pillHideWork: DispatchWorkItem?
+    // Per-page bookmark state (Figma "Bookmark status" — Saved? False/True variant).
+    @State private var bookmarkedPages: Set<Int> = pageArgs.contains("-bookmarked") ? [0] : []
     // Demo captures (-pageNum / -pageEntry) pin the pill visible for screenshots.
     private static let pillPinned = pageArgs.contains("-pageNum") || pageArgs.contains("-pageEntry")
     private struct ScrollInfo: Equatable { var offset: CGFloat; var maxOffset: CGFloat }
@@ -132,6 +134,7 @@ struct DocumentPage: View {
                 LazyVStack(spacing: DS.Space.md) {
                     ForEach(0..<book.pageCount, id: \.self) { i in
                         PDFPageView(book: book, index: i)
+                            .overlay(alignment: .topTrailing) { bookmark(page: i) }
                     }
                     if book.pageCount == 0 {
                         Text("Couldn't load document.").dsText(DS.Text.bodyMd, color: DS.ColorToken.textMuted)
@@ -179,14 +182,27 @@ struct DocumentPage: View {
                     .transition(.opacity)
             }
         }
-        .overlay(alignment: .topTrailing) {
-            Button {} label: {
-                Image(systemName: "bookmark")
-                    .font(.system(size: 20))
-                    .foregroundStyle(DS.ColorToken.textPrimary)
-                    .padding(DS.Space.lg)
-            }.buttonStyle(.plain)
+    }
+
+    // Bookmark — Figma "Bookmark status": a 40pt glyph pinned to the top-right
+    // of each page with a 40pt right inset. Tapping toggles the filled
+    // "saved" state for that page independently.
+    private func bookmark(page i: Int) -> some View {
+        let saved = bookmarkedPages.contains(i)
+        return Button {
+            withAnimation(.easeOut(duration: 0.15)) {
+                if saved { bookmarkedPages.remove(i) } else { bookmarkedPages.insert(i) }
+            }
+        } label: {
+            Image(systemName: saved ? "bookmark.fill" : "bookmark")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 40, height: 40)
+                .foregroundStyle(DS.ColorToken.textPrimary)
+                .contentShape(Rectangle())
         }
+        .buttonStyle(.plain)
+        .padding(.trailing, 40)
     }
 
 
