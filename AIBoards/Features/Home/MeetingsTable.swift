@@ -1,13 +1,12 @@
 import SwiftUI
 
 /// Compact "Books with upcoming meetings" table used on Home.
-/// Columns: Title (flex) · Status 160 · Meeting date 160 · Committee 200 · menu 44.
+/// Columns: Title (flex) · Meeting date 160 · Committee 200 · menu 44.
 struct MeetingsTable: View {
     let books: [Book]
     var onOpen: (Book) -> Void = { _ in }
     var onMenu: (Book) -> Void = { _ in }
 
-    private let statusW: CGFloat = 160
     private let dateW: CGFloat = 160
     private let committeeW: CGFloat = 200
     private let menuW: CGFloat = 44
@@ -33,8 +32,6 @@ struct MeetingsTable: View {
             Text("Title").dsText(DS.Text.bodySmEmph)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.leading, 64)
-            Text("Status").dsText(DS.Text.bodySmEmph)
-                .frame(width: statusW, alignment: .leading).padding(.leading, DS.Space.smd)
             Text("Meeting date").dsText(DS.Text.bodySmEmph)
                 .frame(width: dateW, alignment: .leading).padding(.leading, DS.Space.smd)
             Text("Committee").dsText(DS.Text.bodySmEmph)
@@ -56,10 +53,6 @@ struct MeetingsTable: View {
             }
             .padding(.leading, DS.Space.smd)
             .frame(maxWidth: .infinity, alignment: .leading)
-
-            // Status
-            HStack { StatusChip.book(book.status) }
-                .frame(width: statusW, alignment: .leading).padding(.leading, DS.Space.smd)
 
             // Date
             Text(book.meetingDate).dsText(DS.Text.bodySm, color: DS.ColorToken.textMuted)

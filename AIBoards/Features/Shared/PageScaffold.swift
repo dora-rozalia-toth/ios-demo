@@ -12,18 +12,37 @@ struct PageTitle: View {
 }
 
 /// Sort control ("Meeting date (newest-oldest) ⌄") used on list pages.
+/// Pass `options` + `selection` to open a native sort menu on tap (iOS renders
+/// the "Sort by" section header and the checkmark on the selected option);
+/// omit them for a plain, non-interactive control.
 struct SortControl: View {
     let label: String
+    var options: [String] = []
+    var selection: Binding<String>? = nil
+
     var body: some View {
-        Button {} label: {
-            HStack(spacing: DS.Space.sm) {
-                Text(label).dsText(DS.Text.bodyMd)
-                Image(systemName: "chevron.up.chevron.down")
-                    .font(.system(size: 13, weight: .regular))
-                    .foregroundStyle(DS.ColorToken.textMuted)
+        if let selection, !options.isEmpty {
+            Menu {
+                Picker("Sort by", selection: selection) {
+                    ForEach(options, id: \.self) { Text($0).tag($0) }
+                }
+            } label: {
+                content
             }
+            .tint(DS.ColorToken.textPrimary)
+        } else {
+            Button {} label: { content }
+                .buttonStyle(.plain)
         }
-        .buttonStyle(.plain)
+    }
+
+    private var content: some View {
+        HStack(spacing: DS.Space.sm) {
+            Text(label).dsText(DS.Text.bodyMd)
+            Image(systemName: "chevron.up.chevron.down")
+                .font(.system(size: 13, weight: .regular))
+                .foregroundStyle(DS.ColorToken.textMuted)
+        }
     }
 }
 
